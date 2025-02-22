@@ -70,8 +70,9 @@ interface IUser {
 
 ```
 interface ICardsData {
-  cards: ICard[];
-  preview: string | null;
+  setCards(cards: ICard[]): void;
+  getCard(cardID: string): ICard;
+  setPreview(item: ICard): void;
 }
 ```
 
@@ -79,6 +80,19 @@ interface ICardsData {
 
 ```
 export type TBasketItem = Pick<ICard, 'id' | 'price'>
+```
+
+Интерфейс для модели коллекции карточек
+
+```
+interface IBasketData {
+  actionWithProduct(card: ICard): void;
+	getProducts(): TBasketItem[];
+	getAmountProducts(): number;
+	getSumPrice(): number;
+  getInBasket(itemID: string): boolean;
+  clearBasket(): void;
+}
 ```
 
 Данные для валидации формы пользователя
@@ -119,22 +133,19 @@ export type TFormErrors = Partial<Record<keyof IUser, string>>;
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
+- setCards(items: ICard[]): void - метод для сохранения карточек товаров
 - getCard(cardID: string): ICard - возвращает карточку по ее id
-- setPreview(item: ICard): void - сохраняет ID выбранной карточки в поле preview
+- setPreview(item: ICard): void - сохраняет ID выбранной карточки в поле preview.
 
 #### Класс UserData
 Класс отвечает за хранение и логику работы с данными пользователя.\
 Конструктор класса принимает инстант брокера событий.\
 В полях класса хранятся следующие данные:
-- name: string - имя пользователя
-- phone: string - телефон пользователя
-- address: string - адресс пользователя
-- payment: string - способ оплаты
-- formErrors: TFormErrors - ошибки при заполнении формы
+- user: IUser - данные пользователя
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- setUserData(field: string, value: string, formName: string): void - сохраняет данные пользователя в классе. Принимает атрибут name формы для валидации данных
+- setUserData(field: keyof IUser, value: string, formName: string): void - сохраняет данные пользователя в классе. Принимает атрибут name формы для валидации данных
 - getUserData(): IUser - возвращает данные пользователя
 - validateUser(formName: string): boolean - проверяет заполнение данных пользователя и при ошибке заполняет поле класса formErrors. 
 
@@ -146,7 +157,7 @@ export type TFormErrors = Partial<Record<keyof IUser, string>>;
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- actionWithProduct(item: ICard): void - добавление товара в корзину или удаление, если товар был ранее добавлен 
+- actionWithProduct(card: ICard): void - добавление товара в корзину или удаление, если товар был ранее добавлен 
 - getProducts(): TBasketItem[] - возвращение массива товаров, добавленных в корзину
 - getAmountProducts(): number - возвращение количества добавленных товаров
 - getSumPrice(): number - возвращение общей стоимости добавленных товаров
@@ -252,6 +263,7 @@ export type TFormErrors = Partial<Record<keyof IUser, string>>;
 - `cards:changed` - изменение массива карточек товаров
 - `preview:changed` - изменение открываемой в модальном окне карточки товара
 - `basket:changed` - изменение массива товаров, добавленных в корзину
+- `valid-user: changed` - изменение валидации данных пользователя
 - `formErrors:change` - изменение валидности данных пользователя
 
 *События, возникающие при взаимодействии пользователя с интерфейсом (генерируются классами, отвечающими за представление)*
