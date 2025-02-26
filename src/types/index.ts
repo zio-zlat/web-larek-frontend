@@ -21,11 +21,9 @@ export interface ICardsData {
 }
 
 export interface IUserData {
-	//setUserData(field: keyof IUser, value: string, formName: string): void;
 	setUserData(field: keyof IUser, value: string): void;
 	getUserData(): IUser;
-	//validateUser(formName: string): boolean;
-	validateUser(field: keyof IUser): boolean;
+	validateUser(): boolean;
 }
 
 export type TBasketItem = Pick<ICard, 'id' | 'price'>;
@@ -33,10 +31,23 @@ export type TBasketItem = Pick<ICard, 'id' | 'price'>;
 export interface IBasketData {
 	actionWithProduct(card: ICard): void;
 	getProducts(): TBasketItem[];
-	getAmountProducts(): number;
 	getSumPrice(): number;
 	getInBasket(itemID: string): boolean;
 	clearBasket(): void;
 }
 
 export type TFormErrors = Partial<Record<keyof IUser, string>>;
+
+export interface IOrder {
+	payment: string;
+	email: string;
+	phone: string;
+	address: string;
+	total: number;
+	items: string[];
+}
+
+export interface IOrderResult {
+	id: string;
+	total: number;
+}

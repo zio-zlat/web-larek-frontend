@@ -9,10 +9,14 @@ body.page {
 	background: $background;
 }
 
+.page_locked {
+	overflow: hidden;
+}
+
 .page__wrapper {
 	width: 100%;
 
 	&_locked {
-		position: fixed;
+		overflow-y: scroll;
 	}
 }

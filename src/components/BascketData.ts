@@ -1,5 +1,4 @@
 import { IBasketData, ICard, TBasketItem } from '../types';
-import { testCard1, testCard2 } from '../utils/test';
 import { IEvents } from './base/events';
 
 export class BasketData implements IBasketData {
@@ -10,30 +9,22 @@ export class BasketData implements IBasketData {
 	}
 
 	actionWithProduct(card: ICard) {
-		if (this.getInBasket(card.id)) {
-			this.products = this.products.filter((item) => item.id !== card.id);
-			this.events.emit('basket:changed', {
-				count: this.getAmountProducts(),
-				sum: this.getSumPrice(),
-			});
-		} else {
-			this.products.push({
-				id: card.id,
-				price: card.price,
-			});
-			this.events.emit('basket:changed', {
-				count: this.getAmountProducts(),
-				sum: this.getSumPrice(),
-			});
-		}
+		if (card.price !== null) {
+			if (this.getInBasket(card.id)) {
+				this.products = this.products.filter((item) => item.id !== card.id);
+				this.events.emit('basket:changed', card);
+			} else {
+				this.products.push({
+					id: card.id,
+					price: card.price,
+				});
+				this.events.emit('basket:changed', card);
+			}
+		} else return console.log('Бесценный товар добавить нельзя');
 	}
 
 	getProducts() {
 		return this.products;
-	}
-
-	getAmountProducts() {
-		return this.products.length;
 	}
 
 	getSumPrice() {
@@ -44,11 +35,12 @@ export class BasketData implements IBasketData {
 		return this.products.some((item) => item.id === itemID);
 	}
 
+	getIndexProduct(card: ICard) {
+		return this.products.findIndex((item) => item.id === card.id) + 1;
+	}
+
 	clearBasket() {
 		this.products = [];
-		this.events.emit('basket:changed', {
-			count: this.getAmountProducts(),
-			sum: this.getSumPrice(),
-		});
+		this.events.emit('basket:changed');
 	}
 }

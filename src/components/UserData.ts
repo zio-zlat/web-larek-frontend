@@ -8,14 +8,14 @@ export class UserData implements IUserData {
 		address: '',
 		payment: '',
 	};
-	formErrors: TFormErrors = {};
+	protected formErrors: TFormErrors = {};
 	constructor(protected events: IEvents) {}
 
 	setUserData(field: keyof IUser, value: string) {
 		this.user[field] = value;
 
-		if (this.validateUser(field)) {
-			this.events.emit('valid-user: changed', this.formErrors);
+		if (this.validateUser()) {
+			this.events.emit('valid-user:changed');
 		}
 	}
 
@@ -23,34 +23,31 @@ export class UserData implements IUserData {
 		return this.user;
 	}
 
-	validateUser(field: keyof IUser): boolean {
+	validateUser(): boolean {
 		const errors: typeof this.formErrors = {};
-		if (!this.user[field]) {
-			if (field === 'address') {
-				errors.address = 'Необходимо указать адресс доставки';
-			}
-			if (field === 'email') {
-				errors.email = 'Необходимо указать email';
-			}
-			if (field === 'phone') {
-				errors.phone = 'Необходимо указать телефон';
-			}
+		if (!this.user.email) {
+			errors.email = 'Необходимо указать email';
 		}
-		// if (formName === 'order') {
-		//     if (!this.user.address) {
-		//         errors.email = 'Необходимо указать адресс доставки';
-		//     }
-		// }
-		// if (formName === 'contacts') {
-		//     if (!this.user.email) {
-		//         errors.email = 'Необходимо указать email';
-		//     }
-		//     if (!this.user.phone) {
-		//         errors.phone = 'Необходимо указать телефон';
-		//     }
-		// }
+		if (!this.user.phone) {
+			errors.phone = 'Необходимо указать телефон';
+		}
+		if (!this.user.address) {
+			errors.address = 'Необходимо указать адресс доставки';
+		}
+		if (!this.user.payment) {
+			errors.payment = 'Нет ';
+		}
 		this.formErrors = errors;
 		this.events.emit('formErrors:change', this.formErrors);
 		return Object.keys(errors).length === 0;
+	}
+
+	clearUser() {
+		this.user = {
+			email: '',
+			phone: '',
+			address: '',
+			payment: '',
+		};
 	}
 }
