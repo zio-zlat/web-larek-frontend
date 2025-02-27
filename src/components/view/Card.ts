@@ -1,4 +1,4 @@
-import { ICard } from '../../types';
+import { IProduct } from '../../types';
 import { ensureElement, formatNumber } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
@@ -127,7 +127,7 @@ export class Card extends Component<ICardView> {
 		}
 	}
 
-	render(dataCard: ICard, inBasket?: boolean): HTMLElement {
+	render(dataCard: IProduct, inBasket?: boolean): HTMLElement {
 		this.cardButtonInBasket = inBasket;
 		Object.assign(this, dataCard);
 		return this.container;

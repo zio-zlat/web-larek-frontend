@@ -1,10 +1,10 @@
-export interface ICard {
+export interface IProduct {
 	id: string;
 	title: string;
 	description: string;
 	category: string;
 	image: string;
-	price: number;
+	price: number | null;
 }
 
 export interface IUser {
@@ -14,10 +14,10 @@ export interface IUser {
 	payment: string;
 }
 
-export interface ICardsData {
-	setCards(items: ICard[]): void;
-	getCard(cardID: string): ICard;
-	setPreview(item: ICard): void;
+export interface IProductData {
+	setProducts(items: IProduct[]): void;
+	getProduct(productID: string): IProduct;
+	setPreview(productID: string): void;
 }
 
 export interface IUserData {
@@ -26,23 +26,19 @@ export interface IUserData {
 	validateUser(): boolean;
 }
 
-export type TBasketItem = Pick<ICard, 'id' | 'price'>;
+export type TBasketItem = Pick<IProduct, 'id' | 'price'>;
 
 export interface IBasketData {
-	actionWithProduct(card: ICard): void;
+	actionWithProduct(product: IProduct): void;
 	getProducts(): TBasketItem[];
 	getSumPrice(): number;
 	getInBasket(itemID: string): boolean;
 	clearBasket(): void;
 }
 
-export type TFormErrors = Partial<Record<keyof IUser, string>>;
+export type TFormErrors = Partial<IUser>;
 
-export interface IOrder {
-	payment: string;
-	email: string;
-	phone: string;
-	address: string;
+export interface IOrder extends IUser {
 	total: number;
 	items: string[];
 }

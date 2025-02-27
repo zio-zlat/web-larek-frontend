@@ -1,5 +1,5 @@
-import { IUser, IUserData, TFormErrors } from '../types';
-import { IEvents } from './base/events';
+import { IUser, IUserData, TFormErrors } from '../../types';
+import { IEvents } from '../base/events';
 
 export class UserData implements IUserData {
 	protected user: IUser = {

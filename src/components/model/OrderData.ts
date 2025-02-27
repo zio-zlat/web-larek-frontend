@@ -1,4 +1,4 @@
-import { IOrder, IUser, TBasketItem } from '../types';
+import { IOrder, IUser, TBasketItem } from '../../types';
 
 export class Order {
 	protected order: IOrder = {
@@ -10,14 +10,14 @@ export class Order {
 		items: [],
 	};
 
-	setOrder(user: IUser, card: TBasketItem[]) {
+	setOrder(user: IUser, products: TBasketItem[]) {
 		this.order = {
 			payment: user.payment,
 			email: user.email,
 			phone: user.phone,
 			address: user.address,
-			total: card.reduce((acc, item) => acc + item.price, 0),
-			items: card.map((item) => item.id),
+			total: products.reduce((acc, item) => acc + item.price, 0),
+			items: products.map((item) => item.id),
 		};
 	}
 

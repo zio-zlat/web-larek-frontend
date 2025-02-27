@@ -1,27 +1,27 @@
 import './scss/styles.scss';
 
 import { EventEmitter } from './components/base/events';
-import { CardsData } from './components/CardsData';
-import { BasketData } from './components/BascketData';
-import { UserData } from './components/UserData';
+import { ProductsData } from './components/model/ProductsData';
+import { BasketData } from './components/model/BascketData';
+import { UserData } from './components/model/UserData';
 import { AppApi } from './components/AppApi';
 import { API_URL, CDN_URL } from './utils/constants';
-import { ICard, IUser } from './types';
-import { Card } from './components/common/Card';
+import { IProduct, IUser } from './types';
+import { Card } from './components/view/Card';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { Page } from './components/Page';
+import { Page } from './components/view/Page';
 import { Modal } from './components/common/Modal';
-import { Basket } from './components/common/Basket';
-import { FormOrder } from './components/FormOrder';
-import { FormContacts } from './components/FormContacts';
-import { Order } from './components/OrderData';
-import { Confirm } from './components/common/Confirm';
+import { Basket } from './components/view/Basket';
+import { FormOrder } from './components/view/FormOrder';
+import { FormContacts } from './components/view/FormContacts';
+import { Order } from './components/model/OrderData';
+import { Confirm } from './components/view/Confirm';
 
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
 
 // Модели данных для работы приложения
-const cardsData = new CardsData(events);
+const cardsData = new ProductsData(events);
 const basketData = new BasketData(events);
 const userData = new UserData(events);
 const orderData = new Order();
@@ -50,7 +50,7 @@ const confirmModal = new Confirm(cloneTemplate(confirmTemplate), events);
 const cardPreview = new Card(cloneTemplate(cardPreviewTemplate), events);
 
 // Отображение католога карточек на главной странице
-events.on('cards:changed', () => {
+events.on('products:changed', () => {
 	page.catalog = cardsData.cards.map((card) => {
 		const cardGallery = new Card(cloneTemplate(cardTemplate), events);
 		return cardGallery.render(card);
@@ -58,20 +58,20 @@ events.on('cards:changed', () => {
 });
 
 // Выбор карточки
-events.on('card:select', (card: ICard) => {
-	cardsData.setPreview(card);
+events.on('card:select', (card: Partial<IProduct>) => {
+	cardsData.setPreview(card.id);
 });
 
 // Открытие выбранной карточки
-events.on('preview:changed', (card: ICard) => {
+events.on('preview:changed', (card: IProduct) => {
 	modal.render({
 		content: cardPreview.render(card, basketData.getInBasket(card.id)),
 	});
 });
 
 // Нажатие на кнопку в карточке товара
-events.on('card:submit', (card: ICard) => {
-	basketData.actionWithProduct(cardsData.getCard(card.id));
+events.on('card:submit', (card: IProduct) => {
+	basketData.actionWithProduct(cardsData.getProduct(card.id));
 	cardPreview.cardButtonInBasket = basketData.getInBasket(card.id);
 });
 
@@ -88,7 +88,7 @@ events.on('basket:changed', () => {
 	page.basketCounter = basketData.getProducts().length;
 
 	const listBasket = basketData.getProducts().map((item) => {
-		return cardsData.getCard(item.id);
+		return cardsData.getProduct(item.id);
 	});
 	basket.items = listBasket.map((item) => {
 		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events);
@@ -101,8 +101,8 @@ events.on('basket:changed', () => {
 });
 
 // Удаление карточки товара из корзины
-events.on('card:delete', (card: ICard) => {
-	basketData.actionWithProduct(cardsData.getCard(card.id));
+events.on('card:delete', (card: Partial<IProduct>) => {
+	basketData.actionWithProduct(cardsData.getProduct(card.id));
 });
 
 // Произошло нажатие на кнопку в корзине, нужно открыть модальное окно с формой заказа
@@ -197,8 +197,8 @@ events.on('modal:close', () => {
 // Получение данных с сервера
 api
 	.getCards()
-	.then((data: ICard[]) => {
-		cardsData.setCards(data);
+	.then((data: IProduct[]) => {
+		cardsData.setProducts(data);
 	})
 	.catch((err) => {
 		console.log(err);

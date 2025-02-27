@@ -1,5 +1,5 @@
-import { IEvents } from './base/events';
-import { Form } from './common/Form';
+import { IEvents } from '../base/events';
+import { Form } from '../common/Form';
 
 interface IFormOrder {
 	buttonPay: string;

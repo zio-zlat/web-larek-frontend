@@ -45,7 +45,7 @@ yarn build
 Карточка товара
 
 ```
-interface ICard {
+interface IProduct {
   id: string;
   title: string;
   description: string;
@@ -69,24 +69,24 @@ interface IUser {
 Интерфейс для модели коллекции карточек
 
 ```
-interface ICardsData {
-  setCards(cards: ICard[]): void;
-  getCard(cardID: string): ICard;
-  setPreview(item: ICard): void;
+interface IProductsData {
+  setproducts(items: IProduct[]): void;
+	getproduct(productID: string): IProduct;
+	setPreview(productID: string): void;
 }
 ```
 
 Данные корзины для работы корзины товаров
 
 ```
-export type TBasketItem = Pick<ICard, 'id' | 'price'>
+export type TBasketItem = Pick<IProduct, 'id' | 'price'>
 ```
 
 Интерфейс для модели коллекции карточек в корзине
 
 ```
 interface IBasketData {
-  actionWithProduct(card: ICard): void;
+  actionWithProduct(product: IProduct): void;
 	getProducts(): TBasketItem[];
 	getSumPrice(): number;
 	getInBasket(itemID: string): boolean;
@@ -97,19 +97,15 @@ interface IBasketData {
 Данные для валидации формы пользователя
 
 ```
-export type TFormErrors = Partial<Record<keyof IUser, string>>;
+type TFormErrors = Partial<IUser>;
 ```
 
 Интерфейс для модели данных заказа
 
 ```
-interface IOrder{
-	payment: string;
-    email: string;
-	phone: string;
-	address: string;
-    total: number;
-    items: string[];
+interface IOrder extends IUser {
+	total: number;
+	items: string[];
 }
 ```
 
@@ -154,18 +150,18 @@ interface IOrderResult {
 
 ### Слой данных
 
-#### Класс CardsData
+#### Класс ProductsData
 Класс отвечает за хранение и логику работы с данными карточек товаров.\
 Конструктор класса принимает инстант брокера событий.\
 В полях класса хранятся следующие данные:
-- _cards: ICard[] - массив объектов карточек товаров
+- _products: IProduct[] - массив объектов карточек товаров
 - preview: string | null - id карточки, выбранной для просмотра в модальном окне
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- setCards(items: ICard[]): void - метод для сохранения карточек товаров
-- getCard(cardID: string): ICard - возвращает карточку по ее id
-- setPreview(item: ICard): void - сохраняет ID выбранной карточки в поле preview
+- setproducts(items: IProduct[]): void - метод для сохранения карточек товаров
+- getproduct(productID: string): IProduct - возвращает карточку по ее id
+- setPreview(item: IProduct): void - сохраняет ID выбранной карточки в поле preview
 - а также геттер для получения данных.
 
 #### Класс UserData
@@ -190,11 +186,11 @@ interface IOrderResult {
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- actionWithProduct(card: ICard): void - добавление товара в корзину или удаление, если товар был ранее добавлен 
+- actionWithProduct(product: IProduct): void - добавление товара в корзину или удаление, если товар был ранее добавлен 
 - getProducts(): TBasketItem[] - возвращение массива товаров, добавленных в корзину
 - getSumPrice(): number - возвращение общей стоимости добавленных товаров
 - getInBasket(itemID: string): boolean - метод для проверки добавления товара в корзину
-- getIndexProduct(card: ICard): number - возвращает порядковый номер добавленного товара в корзине
+- getIndexProduct(product: IProduct): number - возвращает порядковый номер добавленного товара в корзине
 - clearBasket(): void - удаление товаров из корзины, после успешного заказа.
 
 #### Класс OrderData
@@ -203,7 +199,7 @@ interface IOrderResult {
 - order: IOrder - объект, в котором храниться заказ пользователя.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
-- setOrder(user: IUser, card: TBasketItem[]) - сохранение данных о заказе в поле order
+- setOrder(user: IUser, product: TBasketItem[]) - сохранение данных о заказе в поле order
 - getOrder(): IOrder - возвращение заказа
 - clearOrder(): void - удаление данных о заказе.
 
@@ -263,7 +259,7 @@ interface IOrderResult {
 Методы:
 - сеттеры для заполнение полей класса.
 
-#### Класс FormOrder
+#### Класс FormContacts
 Расширяет родительский класс Form. Реализует форму ввода данных контактов пользователя.\
 Поля класса:
 - email: string - данные для отображения в инпуте ввода email пользователя
@@ -287,26 +283,26 @@ interface IOrderResult {
 Класс используется для отображения карточек на главной странице сайта, в модальном окне с подробной информацией о товаре и в корзине. В классе устанавливаются слушатели на все интерактивные элементы, в результате взаимодействия с которыми генерируются соответствующие события.\
 Принимает темплейт карточки и экземпляр класса `EventEmitter` для возможности инициации событий.\
 Поля класса:
-- _cardID: string - id карточки товара
+- _productID: string - id карточки товара
 - _title: HTMLElement - элемент разметки для вывода названия товара
 - _price: HTMLElement - элемент разметки для вывода цены товара
 - _category?: HTMLElement - элемент разметки для вывода категории товара
 - _image?: HTMLImageElement - элемент разметки для вывода изображения товара
 - _description?: HTMLElement - элемент разметки для вывода описания товара
-- _cardIndex?: HTMLElement - элемент разметки для вывода порядкового номера товара в корзине
-- cardActionButton?: HTMLButtonElement - кнопка добавления товара в корзину или удаления, если ранее товар уже был добавлен
-- cardDelete?:  HTMLButtonElement - кнопка для удаления товара из корзины.
+- _productIndex?: HTMLElement - элемент разметки для вывода порядкового номера товара в корзине
+- productActionButton?: HTMLButtonElement - кнопка добавления товара в корзину или удаления, если ранее товар уже был добавлен
+- productDelete?:  HTMLButtonElement - кнопка для удаления товара из корзины.
 - id: string - данные для сохранения id карточки
 - title: string - данные для вывода названия товара
 - price: number - данные для вывода цены товара
 - category?: string - данные для вывода категории товара
 - image?: string - данные для вывода изображения товара
 - description?: string - данные для вывода описания товара
-- cardIndex?: number - данные для вывода порядкового номера товара в корзине
-- cardButtonInBasket: boolean - данные для изменения кнопки в зависимости от того, есть ли товар в корзине.
+- productIndex?: number - данные для вывода порядкового номера товара в корзине
+- productButtonInBasket: boolean - данные для изменения кнопки в зависимости от того, есть ли товар в корзине.
 
 Методы:
-- render(cardData: Partial<ICardView>): HTMLElement - метод для вывода всего содержимого карточки товара
+- render(productData: Partial<IProductView>): HTMLElement - метод для вывода всего содержимого карточки товара
 - сеттеры и геттеры для заполнения полей класса.
 
 #### Класс Page
@@ -333,7 +329,7 @@ interface IOrderResult {
 - cdn: string - адрес для получения контента. В приложении используются изображения.
 
 Методы:
-- getCards(): Promise<ICard[]> - метод для получения карточек товаров с сервера
+- getproducts(): Promise<IProduct[]> - метод для получения карточек товаров с сервера
 - postOrder(order: IOrder): Promise<IOrderResult> - метод для отправки данных о заказе на сервер.
 
 ## Взаимодействие компонентов
@@ -343,7 +339,7 @@ interface IOrderResult {
 
 *Список всех событий, которые могут генерироваться в системе:*\
 *События изменения данных (генерируются классами моделями данных)*
-- `cards:changed` - изменение массива карточек товаров
+- `products:changed` - изменение массива карточек товаров
 - `preview:changed` - изменение открываемой в модальном окне карточки товара
 - `basket:changed` - изменение массива товаров, добавленных в корзину
 - `valid-user:changed` - изменение валидации данных пользователя
